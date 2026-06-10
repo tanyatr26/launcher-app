@@ -1,0 +1,9 @@
+# Scratch images not referenced by the app (11 MB)
+uploads/
+
+# Local-only dev server (Vercel serves the files statically itself)
+server.js
+
+# VCS / deps
+.git/
+node_modules/
