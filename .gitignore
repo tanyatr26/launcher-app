@@ -1,0 +1,10 @@
+# Scratch / working images — not referenced by the app
+uploads/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

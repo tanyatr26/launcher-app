@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PM Office — Reconciliation Directions</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #ecebe7; }
+  .dir { width: 924px; font-family: -apple-system, system-ui, sans-serif; }
+  .dir .hero-wrap { overflow: hidden; }
+  .dir .hero-wrap img { width: 100%; display: block; }
+  .dir .apps-wrap { position: relative; height: 540px; overflow: hidden; }
+  .dir .apps-sb { position: absolute; left: 0; top: 0; bottom: 0; width: 248px; }
+  .dir .apps-main { position: absolute; left: 248px; right: 0; top: 0; bottom: 0; overflow: hidden; }
+  .dir .apps-main img { position: absolute; left: -249px; top: 0; width: 924px; display: block; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+function Dir({ hero, apps, heroH, sb, divider, cardBg }) {
+  return (
+    <div className="dir" style={{ background: cardBg }}>
+      <div className="hero-wrap" style={{ height: heroH }}>
+        <img src={hero} alt="" />
+      </div>
+      <div className="apps-wrap">
+        <div className="apps-sb" style={{ background: sb }} />
+        <div className="apps-main" style={{ borderLeft: "1px solid " + divider }}>
+          <img src={apps} alt="" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const LIGHT = { sb: "#fbfbfa", divider: "#ececea", cardBg: "#ffffff", heroH: 355 };
+const DARK  = { sb: "#0d0f0e", divider: "#232624", cardBg: "#0a0b0a", heroH: 430 };
+
+function Compare() {
+  return (
+    <DesignCanvas>
+      <DCSection id="directions" title="Reconciling the two launchers"
+        subtitle="One sidebar shell, one AI router, one app catalog — three stances on where the calm light dashboard and the dramatic dark launcher meet. All three are live in Launcher.html via the Hero / Theme / View tweaks; open it to click around.">
+        <DCArtboard id="quiet" label="A · The Quiet Dashboard — light · personal greeting · list rows" width={924} height={895}>
+          <Dir hero="screenshots/dir-a.png" apps="screenshots/apps-a.png" {...LIGHT} />
+        </DCArtboard>
+        <DCArtboard id="balanced" label="B · The Balanced Launcher — light · greeting + AI router · card library" width={924} height={895}>
+          <Dir hero="screenshots/dir-b.png" apps="screenshots/apps-b.png" {...LIGHT} />
+        </DCArtboard>
+        <DCArtboard id="command" label="C · The Command Surface — dark · bold editorial hero · card library" width={924} height={970}>
+          <Dir hero="screenshots/dir-c.png" apps="screenshots/appsc_fresh.png" {...DARK} />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Compare />);
+</script>
+</body>
+</html>
