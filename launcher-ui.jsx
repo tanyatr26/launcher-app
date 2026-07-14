@@ -138,10 +138,10 @@ function PersonaSwitcher({ persona, personas, onSwitch }) {
 .persona-wrap .user-card{width:100%;cursor:pointer;text-align:left;background:none}
 .persona-menu{position:absolute;bottom:calc(100% + 8px);left:6px;right:6px;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--r-lg);box-shadow:var(--shadow-pop);padding:6px;z-index:80}
 .persona-label{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);padding:6px 8px 5px}
-.demo-tag{font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-2);background:var(--accent-soft);border-radius:4px;padding:1px 5px}
+.demo-tag{font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);background:color-mix(in oklch,var(--text) 8%,transparent);border-radius:4px;padding:1px 5px}
 .persona-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px;border-radius:var(--r-md);transition:background .12s}
 .persona-item:hover{background:var(--surface-hover)}
-.persona-item.active{background:var(--accent-soft)}
+.persona-item.active{background:color-mix(in oklch,var(--text) 7%,transparent)}
 .persona-av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:500;font-size:12px;flex:none}
 .persona-meta{min-width:0}
 .persona-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap}
@@ -172,7 +172,7 @@ function PersonaSwitcher({ persona, personas, onSwitch }) {
               <div className="persona-name">{p.name}</div>
               <div className="persona-role">{p.role}</div>
             </span>
-            {p.key === persona.key && <Icon name="check" size={15} style={{ marginLeft: "auto", color: "var(--accent)" }} />}
+            {p.key === persona.key && <Icon name="check" size={15} style={{ marginLeft: "auto", color: "var(--text)" }} />}
           </button>
         )}
       </div>
@@ -210,7 +210,7 @@ function SearchBar({ value, onChange, onSubmit, suggestions, onChip, showChips }
         onSubmit(value, attached);
         setAttached([]);
       }}>
-        <Icon name="sparkle" size={22} className="spark" style={{ stroke: "rgb(37, 235, 115)" }} />
+        <Icon name="sparkle" size={22} className="spark" />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -363,7 +363,7 @@ function Controls({ view, setView, categories, cats, onToggleCat, onClearCats, s
             style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
               padding: "8px 11px", borderRadius: 7, fontSize: 13.5, color: "var(--text)",
               background: s === sort ? "var(--surface-hover)" : "transparent" }}>
-                  {s} {s === sort && <Icon name="chevR" size={14} style={{ color: "var(--accent)", transform: "rotate(0)" }} />}
+                  {s} {s === sort && <Icon name="chevR" size={14} style={{ color: "var(--text)", transform: "rotate(0)" }} />}
                 </button>
             )}
             </div>
@@ -395,7 +395,7 @@ function Section({ title, count, dot, sub, action, children }) {
 /* ---------------- List row ---------------- */
 function AppRow({ app, onTogglePin, highlight, onOpen }) {
   return (
-    <div className="app-row" style={highlight ? { outline: "2px solid var(--accent-soft)", outlineOffset: -2 } : undefined}
+    <div className="app-row" style={highlight ? { outline: "2px solid color-mix(in oklch, var(--text) 25%, transparent)", outlineOffset: -2 } : undefined}
     onClick={onOpen && (app.inplace || app.repPortal) ? () => onOpen(app) : undefined}>
       <Tile app={app} />
       <span className="meta">
@@ -434,7 +434,7 @@ function AppCard({ app, onTogglePin, highlight, onOpen, explore }) {
 
   }
   return (
-    <div className="card" style={highlight ? { outline: "2px solid var(--accent-soft)", outlineOffset: -2 } : null}
+    <div className="card" style={highlight ? { outline: "2px solid color-mix(in oklch, var(--text) 25%, transparent)", outlineOffset: -2 } : null}
     onClick={onOpen ? () => onOpen(app) : undefined}>
       <div className="card-top">
         <Tile app={app} lg />
@@ -455,7 +455,7 @@ function AppCard({ app, onTogglePin, highlight, onOpen, explore }) {
 }
 
 /* ---------------- Explore card (three states) ---------------- */
-function ExploreCard({ app, action, helper, onLaunch, onRequest, onTrial, onSubscribe, onDemo, suiteStatus, onReview, authority = true, onStartIntake }) {
+function ExploreCard({ app, action, helper, onLaunch, onRequest, onTrial, onSubscribe, onDemo, suiteStatus, onReview, authority = true, onStartIntake, onOpenRequests, onOpenBilling }) {
   const stop = (fn) => (e) => {e.stopPropagation();fn && fn(app);};
   // The Payroll Suite card walks the acquisition stages in place: escalated
   // (a standard user requested for the team — the OWNER starts the licensing
@@ -463,8 +463,16 @@ function ExploreCard({ app, action, helper, onLaunch, onRequest, onTrial, onSubs
   // it parked with the owner) → accepted-awaiting-payment. Nothing activates
   // from this card — only accept-and-pay does that.
   if (suiteStatus && suiteStatus !== "none" && suiteStatus !== "live") {
+    // Clicking the CARD follows the stage to where the work is (user decision
+    // 2026-07-14): terms-ready (authority) opens review & accept; a pending or
+    // escalated request lands on Access Requests; accepted-awaiting-payment
+    // lands on Subscriptions. The in-card pill/button still works on its own.
+    const cardGo =
+      suiteStatus === "terms-ready" && authority ? onReview :
+      suiteStatus === "pending" || (suiteStatus === "escalated" && !authority) ? onOpenRequests :
+      suiteStatus === "awaiting-clear" ? onOpenBilling : null;
     return (
-      <div className="card">
+      <div className={"card" + (cardGo ? " card-locked" : "")} onClick={cardGo ? () => cardGo(app) : undefined}>
         <div className="card-top"><Tile app={app} lg /></div>
         <h3 className="card-title">{app.name}</h3>
         <p className="card-desc">{app.desc}</p>
@@ -1049,7 +1057,7 @@ function BillingScreen({ onAction, upgradeStage, setUpgradeStage, requestUpgrade
                 {s.upgradePending && upgradeStage === "ready" && <button className="status-pill ready" onClick={() => setUpgradeOpen(true)}><span className="sdot" />Terms ready &mdash; Review &amp; accept</button>}
                 {s.failed && <span className="status-pill denied"><span className="sdot" />Payment failed</span>}
                 {s.changeRequested && <span className="status-pill pending"><span className="sdot" />Change requested</span>}
-                {s.awaitingClear && <span className="status-pill pending"><span className="sdot" />Awaiting payment &mdash; apps unlock once it clears</span>}
+                {s.awaitingClear && <span className="status-pill pending"><span className="sdot" />Awaiting {/^check/i.test(suiteMethod || "") ? "check" : "wire"} &mdash; apps unlock once it clears</span>}
               </span>
             }
               {s.awaitingClear &&
@@ -1329,13 +1337,13 @@ function AddPaymentMethodModal({ onClose, onAdd }) {
 .addpm-modal{width:min(460px,100%);position:relative}
 .addpm-modal .modal-close.floating{position:absolute;top:16px;right:16px;left:auto;z-index:2}
 .addpm-head{padding:26px 26px 0}
-.addpm-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+.addpm-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
 .addpm-title{font-size:21px;font-weight:500;letter-spacing:-.01em;color:var(--text);line-height:1.15}
 .addpm-sub{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--text-2)}
 .addpm-body{padding:18px 26px 0;display:flex;flex-direction:column;gap:12px}
 .addpm-seg{display:flex;gap:6px}
 .addpm-seg button{flex:1;padding:9px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);font-size:13px;font-weight:500;color:var(--text-2);background:var(--search-bg)}
-.addpm-seg button.on{border-color:var(--accent-2);color:var(--text);background:var(--accent-soft)}
+.addpm-seg button.on{border-color:var(--text-3);color:var(--text);background:var(--surface-hover)}
 .addpm-field{display:flex;flex-direction:column;gap:5px}
 .addpm-label{font-size:11.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3)}
 .addpm-input{width:100%;background:var(--search-bg);border:1px solid var(--border-strong);border-radius:var(--r-md);padding:10px 12px;color:var(--text);font-size:13.5px;font-family:var(--font-ui)}
@@ -1469,16 +1477,16 @@ function ReviewUpgradeModal({ sub, onClose, onAction, onAccept }) {
 .up-modal{width:min(480px,100%);position:relative}
 .up-modal .modal-close.floating{position:absolute;top:16px;right:16px;left:auto;z-index:2}
 .up-head{padding:26px 26px 0}
-.up-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+.up-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
 .up-title{font-size:21px;font-weight:500;letter-spacing:-.01em;color:var(--text);line-height:1.15}
 .up-gate{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--text-2);text-wrap:pretty}
 .up-body{padding:22px 26px 0}
 .up-compare{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
 .up-block{display:flex;flex-direction:column;gap:4px;min-width:0}
-.up-block.proposed{padding:14px 15px;border:1px solid color-mix(in oklch,var(--accent-2) 40%,var(--border));border-radius:var(--r-lg);background:var(--accent-soft)}
+.up-block.proposed{padding:14px 15px;border:1px solid var(--text-3);border-radius:var(--r-lg);background:var(--surface-hover)}
 .up-block.current{padding:14px 15px}
 .up-block-label{font-size:10.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
-.up-block.proposed .up-block-label{color:var(--accent-2)}
+.up-block.proposed .up-block-label{color:var(--text-2)}
 .up-tier{font-size:16px;font-weight:500;color:var(--text)}
 .up-band{font-size:12px;color:var(--text-2)}
 .up-price{font-size:13.5px;font-weight:500;color:var(--text);margin-top:3px}
@@ -1589,7 +1597,7 @@ function InvoicesModal({ scope, subs, allInv, onClose, onAction, onUpdateMethod 
 .inv-modal{width:min(700px,100%);position:relative;display:flex;flex-direction:column;max-height:84vh}
 .inv-modal .modal-close.floating{position:absolute;top:18px;right:18px;left:auto;z-index:2}
 .inv-modal-head{padding:24px 24px 18px;border-bottom:1px solid var(--hairline)}
-.inv-modal-head .inv-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+.inv-modal-head .inv-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
 .inv-modal-head .inv-h1{font-size:21px;font-weight:500;letter-spacing:-.01em;color:var(--text);line-height:1.15}
 .inv-head-row{display:flex;align-items:center;gap:13px}
 .inv-head-row .tile.lg{width:46px;height:46px;border-radius:12px;flex:none}
@@ -1875,7 +1883,7 @@ function IntakeFormModal({ form, onClose, onSubmit }) {
 .intake-modal{width:min(520px,100%);position:relative}
 .intake-modal .modal-close.floating{position:absolute;top:16px;right:16px;left:auto;z-index:2}
 .intake-head{padding:26px 26px 0}
-.intake-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+.intake-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
 .intake-title{font-size:21px;font-weight:500;letter-spacing:-.01em;color:var(--text);line-height:1.15}
 .intake-sub{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--text-2);text-wrap:pretty}
 .intake-body{padding:20px 26px 0;display:flex;flex-direction:column;gap:14px;max-height:52vh;overflow-y:auto}
@@ -1927,9 +1935,10 @@ function AcceptDealModal({ deal, onClose, onAccept, wallet, onAdd }) {
   { id: "visa-4242", kind: "card", glyph: "receipt", name: "Visa", num: "4242" }]).
   map((w) => ({ key: w.id, kind: "auto", label: w.name + " ···· " + w.num, glyph: w.glyph, sub: "Charged now through the payment processor" }));
   const METHODS = [...walletMethods,
-  { key: "manual", kind: "manual", label: "Check or wire", glyph: "ledger", sub: "Invoiced — PM Office reconciles on receipt; apps unlock once it clears" }];
+  { key: "check", kind: "manual", short: "check", label: "Check — by mail", glyph: "ledger", sub: "Invoiced — allow mailing and clearing time; apps unlock once it clears" },
+  { key: "wire", kind: "manual", short: "wire", label: "Wire transfer", glyph: "bank", sub: "Invoiced — usually settles the same day; apps unlock on receipt" }];
 
-  const [method, setMethod] = useState(walletMethods[0]?.key ?? "manual");
+  const [method, setMethod] = useState(walletMethods[0]?.key ?? "check");
   const [adding, setAdding] = useState(false);
   React.useEffect(() => {
     const onKey = (e) => {if (e.key === "Escape") onClose();};
@@ -1943,7 +1952,7 @@ function AcceptDealModal({ deal, onClose, onAccept, wallet, onAdd }) {
 .deal-modal{width:min(580px,100%);position:relative;display:flex;flex-direction:column;max-height:88vh}
 .deal-modal .modal-close.floating{position:absolute;top:16px;right:16px;left:auto;z-index:2}
 .deal-head{padding:26px 26px 0}
-.deal-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+.deal-eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
 .deal-title{font-size:21px;font-weight:500;letter-spacing:-.01em;color:var(--text);line-height:1.15}
 .deal-gate{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--text-2);text-wrap:pretty}
 .deal-body{padding:18px 26px 0;overflow-y:auto}
@@ -2018,7 +2027,7 @@ function AcceptDealModal({ deal, onClose, onAccept, wallet, onAdd }) {
         <div className="modal-foot">
           <button type="button" className="btn-text" onClick={onClose}>Not now</button>
           <button type="button" className="btn-primary" onClick={() => onAccept(chosen)}>
-            {chosen.kind === "manual" ? "Accept — invoice by " + chosen.label.toLowerCase() : "Accept & pay " + deal.amountDue}
+            {chosen.kind === "manual" ? "Accept — invoice by " + (chosen.short || chosen.label.toLowerCase()) : "Accept & pay " + deal.amountDue}
           </button>
         </div>
         <div className="deal-fine">PM Office is notified of acceptance; settlement happens ops-side and refreshes this display.</div>

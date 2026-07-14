@@ -166,7 +166,7 @@ function App() {
     setSentReqs((prev) => prev.map((r) => r.id === "suite-req" ? { ...r, status: "accepted" } : r));
     if (method.kind === "manual") {
       setSuiteStage("awaiting-clear");
-      showToast("Accepted — invoice issued. The suite's apps unlock once your " + method.label.toLowerCase() + " payment clears.");
+      showToast("Accepted — invoice issued. The suite's apps unlock once your " + (method.short || method.label.toLowerCase()) + " payment clears.");
     } else {
       setSuiteStage("live");
       showToast("Payroll Suite is live — Payroll, Customer Configuration, Check Printing and Billing are now in your apps.");
@@ -473,6 +473,7 @@ function App() {
                 {g.list.map((a) =>
                   <ExploreCard key={a.id} app={a} action={g.action} helper={g.helper}
                   suiteStatus={a.id === "x-payroll-suite" ? suiteStage : null} onReview={openSuiteReview}
+                  onOpenRequests={() => setScreen("requests")} onOpenBilling={() => setScreen("billing")}
                   authority={viewerHasSubscriptions} onStartIntake={() => setSuiteIntakeOpen(true)}
                   onLaunch={(x) => x.repPortal ? launchSalesRepPortal() : showToast("Launching " + x.name + "\u2026")}
                   onRequest={(x) => {
