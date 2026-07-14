@@ -713,6 +713,15 @@ body {
 }
 .field textarea::placeholder { color: var(--text-3); }
 .field textarea:focus { outline: none; border-color: var(--search-ring); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field input[type="text"], .field input[type="number"] {
+  width: 100%; background: var(--search-bg); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md); padding: 11px 13px;
+  color: var(--text); font-size: 14px; line-height: 1.5; font-family: var(--font-ui);
+  transition: border-color .15s, box-shadow .15s;
+}
+.field input::placeholder { color: var(--text-3); }
+.field input:focus { outline: none; border-color: var(--search-ring); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field-help { margin: -1px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--text-3); }
 .modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 18px 22px 22px; }
 .btn-primary {
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
@@ -1253,6 +1262,7 @@ body {
    Translucent, light-catching surfaces floating over the page.
    Buttons, chips and chrome are intentionally excluded.
    ============================================================ */
+.glass,
 .rows,
 .grid,
 .cards-loose .card,

@@ -4,6 +4,9 @@ uploads/
 # Node
 node_modules/
 
+# Cloned design-system reference (ingested for tokens/patterns; not part of the app)
+pm-office-design/
+
 # OS / editor
 .DS_Store
 Thumbs.db
